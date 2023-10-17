@@ -1,34 +1,18 @@
-name: Backup workflow
+name: Common Workflow
 
 on:
- workflow_dispatch:
-   schedule:
-     -cron:'* * * * * '
+  repository_dispatch:
+    types: [run-common-workflow]
 
- jobs:
-   Backup:
-     runs-on: ubuntu-latest
+jobs:
+  common-job:
+    runs-on: ubuntu-latest
 
-     steps:
-        -name: Checkout code
-         uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-         -name: Set up environments
-          run:  |
-             chmod +x .github/workflow/github-backup-script.sh
-             sudo apt -get -install -y  dowmload dependency
-
-          -name: Run Backup Script
-           run: ./.github/workflow/github-backup-script.sh
-           env:
-            SECRET_KEY:${{ secrets.value }}
-
-           -name: Assume role
-            uses: aws-actions/configure-aws-credentials@v1
-            with:
-              role-to-assume: ${{ secrets.BACKUP_AWS_ROLE }}
-              aws-region: ${{ secrets.BACKUP_AWS_REGION}}
-
-           -name: Display assumed role
-            run: aws sts get-caller-identity
-           
+      - name: Run Common Script
+        run: .github/workflow/github-backup-script.sh
+        env:
+          COMMON_SECRET: ${{ secrets.COMMON_SECRET }}
